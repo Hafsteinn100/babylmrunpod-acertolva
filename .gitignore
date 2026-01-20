@@ -1,0 +1,16 @@
+
+# Data
+IGC-2024-extracted/
+IGC-2024-snapshot/
+data/
+*.zip
+*.tar.gz
+
+# Models
+submission/model.safetensors
+*.pt
+*.bin
+
+# System
+__pycache__/
+.DS_Store
