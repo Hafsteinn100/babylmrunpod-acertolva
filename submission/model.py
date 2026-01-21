@@ -8,7 +8,7 @@ from pathlib import Path
 
 # Configuration (Must match training)
 EMBED_DIM = 64
-HIDDEN_DIM = 400  # Larger model
+HIDDEN_DIM = 480  # Increased for more capacity
 VOCAB_SIZE = 256
 SEQ_LEN = 128
 

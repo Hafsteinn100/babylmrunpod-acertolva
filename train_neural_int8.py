@@ -13,7 +13,7 @@ import torch.optim as optim
 
 # Configuration - LARGER model for INT8 quantization
 EMBED_DIM = 64
-HIDDEN_DIM = 400  # 4x larger than before (was 180)
+HIDDEN_DIM = 480  # Increased from 400 for more capacity
 VOCAB_SIZE = 256
 SEQ_LEN = 128
 BATCH_SIZE = 64
