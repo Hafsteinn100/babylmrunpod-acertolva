@@ -20,11 +20,11 @@ VOCAB_SIZE = 256
 SEQ_LEN = 128
 BATCH_SIZE = 64
 
-# Only download these files (small subset, ~3GB total)
+# Only download these files (small subset, ~3GB compressed, ~6GB extracted)
 SUBSET_FILES = [
-    "igc_news1.zip",
-    "igc_wiki.zip",
-    "igc_journals.zip",
+    "igc_wiki/igc_wiki.zip",           # 103MB - Wikipedia
+    "igc_news1/igc_news1_ruv.zip",     # 827MB - RUV news
+    "igc_news1/igc_news1_visir.zip",   # 2.0GB - Visir news
 ]
 
 class ByteLSTM(nn.Module):
