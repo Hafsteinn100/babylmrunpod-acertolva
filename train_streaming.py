@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Train a LARGER byte-level LSTM model, then quantize to INT8.
-This version STREAMS from HuggingFace - no disk save required!
+This version STREAMS from HuggingFace IGC-2024 subsets - no disk save required!
 """
 import argparse
 import random
@@ -17,6 +17,18 @@ VOCAB_SIZE = 256
 SEQ_LEN = 128
 BATCH_SIZE = 64
 
+# List of subsets to load from IGC-2024
+IGC_SUBSETS = [
+    "igc_news1_mbl",
+    "igc_news1_visir",
+    "igc_news1_dv",
+    "igc_news1_ruv",
+    "igc_wiki",
+    "igc_journals_ljo",
+    "igc_journals_ss",
+    "igc_journals_th",
+]
+
 class ByteLSTM(nn.Module):
     def __init__(self):
         super().__init__()
@@ -31,48 +43,58 @@ class ByteLSTM(nn.Module):
         return logits, hidden
 
 def load_data_stream_hf(max_docs=None):
-    """Stream data directly from HuggingFace - no disk save needed!"""
+    """Stream data from HuggingFace IGC-2024 subsets."""
     from datasets import load_dataset
     
-    print("Streaming from HuggingFace (no disk save)...")
-    ds = load_dataset("arnastofnun/IGC-2024", split="train", streaming=True)
+    print("Loading from HuggingFace IGC-2024 subsets...")
     
     batch_x, batch_y = [], []
     docs_processed = 0
     stride = SEQ_LEN // 2
     
-    for item in ds:
+    for subset in IGC_SUBSETS:
         if max_docs and docs_processed >= max_docs:
             break
             
-        text_content = item.get("text") or item.get("document")
-        if not text_content:
+        print(f"Loading subset: {subset}...")
+        try:
+            ds = load_dataset("arnastofnun/IGC-2024", subset, split="train", streaming=True)
+        except Exception as e:
+            print(f"  Skipping {subset}: {e}")
             continue
-        
-        text = text_content.encode("utf-8")
-        if len(text) < 2:
-            continue
-        
-        for i in range(0, len(text) - 1, stride):
-            chunk = text[i : i + SEQ_LEN + 1]
-            if len(chunk) < 2:
-                continue
-            input_seq = list(chunk[:-1])
-            target_seq = list(chunk[1:])
             
-            if len(input_seq) < SEQ_LEN:
+        for item in ds:
+            if max_docs and docs_processed >= max_docs:
+                break
+                
+            text_content = item.get("document") or item.get("text")
+            if not text_content:
                 continue
             
-            batch_x.append(input_seq[:SEQ_LEN])
-            batch_y.append(target_seq[:SEQ_LEN])
+            text = text_content.encode("utf-8")
+            if len(text) < 2:
+                continue
             
-            if len(batch_x) >= BATCH_SIZE:
-                yield torch.tensor(batch_x, dtype=torch.long), torch.tensor(batch_y, dtype=torch.long)
-                batch_x, batch_y = [], []
-        
-        docs_processed += 1
-        if docs_processed % 1000 == 0:
-            print(f"Processed {docs_processed} docs...", end="\r")
+            for i in range(0, len(text) - 1, stride):
+                chunk = text[i : i + SEQ_LEN + 1]
+                if len(chunk) < 2:
+                    continue
+                input_seq = list(chunk[:-1])
+                target_seq = list(chunk[1:])
+                
+                if len(input_seq) < SEQ_LEN:
+                    continue
+                
+                batch_x.append(input_seq[:SEQ_LEN])
+                batch_y.append(target_seq[:SEQ_LEN])
+                
+                if len(batch_x) >= BATCH_SIZE:
+                    yield torch.tensor(batch_x, dtype=torch.long), torch.tensor(batch_y, dtype=torch.long)
+                    batch_x, batch_y = [], []
+            
+            docs_processed += 1
+            if docs_processed % 1000 == 0:
+                print(f"Processed {docs_processed} docs...", end="\r")
 
 def train(output_dir, epochs=1, max_docs=100000):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
