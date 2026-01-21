@@ -12,7 +12,7 @@ import torch.optim as optim
 
 # Configuration - LARGER model for INT8 quantization
 EMBED_DIM = 64
-HIDDEN_DIM = 480  # Increased from 400 for more capacity
+HIDDEN_DIM = 440  # Reduced from 480 to fit 1MB limit
 VOCAB_SIZE = 256
 SEQ_LEN = 128
 BATCH_SIZE = 64
@@ -35,7 +35,7 @@ def load_data_stream_hf(max_docs=None):
     from datasets import load_dataset
     
     print("Streaming from HuggingFace (no disk save)...")
-    ds = load_dataset("mideind/IGC-2024", split="train", streaming=True)
+    ds = load_dataset("arnastofnun/IGC-2024", split="train", streaming=True)
     
     batch_x, batch_y = [], []
     docs_processed = 0
