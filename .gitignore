@@ -8,7 +8,10 @@ data/
 
 # Models
 submission/model.safetensors
-*.pt
+submission/model_fp32.pt
+submission/checkpoint_fp32.pt
+# Keep model_int8.pt (our best model)
+# *.pt - commented out to allow INT8 model
 *.bin
 
 # System
