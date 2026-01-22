@@ -114,7 +114,15 @@ def load_data_stream(data_path, max_docs=None):
 
 
 def train(data_path, output_dir, epochs=3, max_docs=None):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Select Device: CUDA -> MPS (Mac) -> CPU
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        device = torch.device("mps")
+        print("Using Apple MPS (Metal Performance Shaders) acceleration!")
+    else:
+        device = torch.device("cpu")
+        
     print(f"Using device: {device}")
     
     Path(output_dir).mkdir(parents=True, exist_ok=True)
