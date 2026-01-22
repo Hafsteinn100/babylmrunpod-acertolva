@@ -226,6 +226,11 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", type=Path, default="submission")
     parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--max-docs", type=int, default=None)
+    parser.add_argument("--batch_size", type=int, default=128)
     args = parser.parse_args()
+    
+    # Override global batch size
+    global BATCH_SIZE
+    BATCH_SIZE = args.batch_size
     
     train(args.data, args.output_dir, epochs=args.epochs, max_docs=args.max_docs)
