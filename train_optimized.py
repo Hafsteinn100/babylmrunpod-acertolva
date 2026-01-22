@@ -230,7 +230,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Override global batch size
-    global BATCH_SIZE
     BATCH_SIZE = args.batch_size
     
     train(args.data, args.output_dir, epochs=args.epochs, max_docs=args.max_docs)
